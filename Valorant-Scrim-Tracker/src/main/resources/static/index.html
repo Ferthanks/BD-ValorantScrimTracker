@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Valorant Scrim Tracker</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<header class="topbar">
+    <div class="brand">
+        <span class="badge">VCT</span>
+        <h1>VALORANT <span>SCRIM TRACKER</span></h1>
+    </div>
+    <nav class="tabs">
+        <button class="tab-btn active" data-tab="dashboard">Dashboard</button>
+        <button class="tab-btn" data-tab="jogadores">Jogadores</button>
+        <button class="tab-btn" data-tab="questoes">Questões</button>
+        <button class="tab-btn" data-tab="scrims">Scrims</button>
+        <button class="tab-btn" data-tab="avaliacao">Avaliação 360°</button>
+    </nav>
+</header>
+
+<main class="container">
+    <!-- ===================== DASHBOARD ===================== -->
+    <section id="tab-dashboard" class="tab-content active">
+        <div class="section-header">
+            <h2>Dashboard de Desempenho</h2>
+            <button class="btn-secondary" onclick="carregarDashboard()">Atualizar Gráficos</button>
+        </div>
+
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <span>Jogadores Cadastrados</span>
+                <strong id="kpi-jogadores">0</strong>
+            </div>
+            <div class="kpi-card">
+                <span>Scrims Registradas</span>
+                <strong id="kpi-scrims">0</strong>
+            </div>
+            <div class="kpi-card">
+                <span>Melhor Jogador (Média)</span>
+                <strong id="kpi-mvp">-</strong>
+            </div>
+            <div class="kpi-card">
+                <span>Melhor Mapa</span>
+                <strong id="kpi-mapa">-</strong>
+            </div>
+        </div>
+
+        <div class="charts-grid">
+            <div class="card">
+                <h3>Ranking 360° por Jogador</h3>
+                <canvas id="chartJogadores"></canvas>
+            </div>
+            <div class="card">
+                <h3>Média de Desempenho por Mapa</h3>
+                <canvas id="chartMapas"></canvas>
+            </div>
+            <div class="card">
+                <h3>Média por Critério / Questão</h3>
+                <canvas id="chartQuestoes"></canvas>
+            </div>
+            <div class="card">
+                <h3>Evolução ao Longo das Scrims</h3>
+                <canvas id="chartEvolucao"></canvas>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===================== JOGADORES ===================== -->
+    <section id="tab-jogadores" class="tab-content">
+        <h2>Gerenciar Jogadores</h2>
+        <div class="split-layout">
+            <form id="form-jogador" class="card form-card">
+                <h3>Novo Jogador</h3>
+                <label>Nick
+                    <input type="text" id="j-nick" placeholder="Ex: Aspas" required>
+                </label>
+                <label>Riot Tag
+                    <input type="text" id="j-tag" placeholder="Ex: #BR1" required>
+                </label>
+                <label>Função
+                    <select id="j-funcao" required>
+                        <option value="Duelista">Duelista</option>
+                        <option value="Iniciador">Iniciador</option>
+                        <option value="Controlador">Controlador</option>
+                        <option value="Sentinela">Sentinela</option>
+                        <option value="Coach">Coach</option>
+                        <option value="Flex">Flex</option>
+                    </select>
+                </label>
+                <label>E-mail
+                    <input type="email" id="j-email" placeholder="jogador@time.com" required>
+                </label>
+                <label>Senha
+                    <input type="password" id="j-senha" placeholder="******" required>
+                </label>
+                <button type="submit" class="btn-primary">Cadastrar Jogador</button>
+            </form>
+
+            <div class="card table-card">
+                <h3>Elenco Atual</h3>
+                <table>
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nick</th>
+                        <th>Riot Tag</th>
+                        <th>Função</th>
+                        <th>E-mail</th>
+                        <th>Ações</th>
+                    </tr>
+                    </thead>
+                    <tbody id="lista-jogadores"></tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===================== QUESTÕES ===================== -->
+    <section id="tab-questoes" class="tab-content">
+        <h2>Critérios de Avaliação (Questões)</h2>
+        <div class="split-layout">
+            <form id="form-questao" class="card form-card">
+                <h3>Nova Questão</h3>
+                <label>Enunciado
+                    <textarea id="q-enunciado" rows="3" placeholder="Ex: Comunicação durante os rounds?" required></textarea>
+                </label>
+                <label>Tipo
+                    <input type="text" id="q-tipo" list="tipos-questao" value="NOTA" required>
+                    <datalist id="tipos-questao">
+                        <option value="NOTA">
+                        <option value="TEXTO">
+                    </datalist>
+                </label>
+                <label>Peso
+                    <input type="number" id="q-peso" step="0.1" min="0.1" value="1.0" required>
+                </label>
+                <button type="submit" class="btn-primary">Cadastrar Questão</button>
+            </form>
+
+            <div class="card table-card">
+                <h3>Questões Cadastradas</h3>
+                <table>
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Enunciado</th>
+                        <th>Tipo</th>
+                        <th>Peso</th>
+                        <th>Ações</th>
+                    </tr>
+                    </thead>
+                    <tbody id="lista-questoes"></tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===================== SCRIMS ===================== -->
+    <section id="tab-scrims" class="tab-content">
+        <h2>Gerenciar Scrims</h2>
+        <div class="split-layout">
+            <form id="form-scrim" class="card form-card">
+                <h3>Registrar Nova Scrim</h3>
+                <label>Título
+                    <input type="text" id="s-titulo" placeholder="Ex: Treino vs LOUD" required>
+                </label>
+                <div class="row-2">
+                    <label>Data
+                        <input type="date" id="s-data" required>
+                    </label>
+                    <label>Mapa
+                        <select id="s-mapa" required>
+                            <option value="Ascent">Ascent</option>
+                            <option value="Bind">Bind</option>
+                            <option value="Haven">Haven</option>
+                            <option value="Split">Split</option>
+                            <option value="Lotus">Lotus</option>
+                            <option value="Sunset">Sunset</option>
+                            <option value="Abyss">Abyss</option>
+                            <option value="Icebox">Icebox</option>
+                            <option value="Breeze">Breeze</option>
+                            <option value="Fracture">Fracture</option>
+                            <option value="Pearl">Pearl</option>
+                        </select>
+                    </label>
+                </div>
+                <div class="row-2">
+                    <label>Horário Início
+                        <input type="time" id="s-inicio" required>
+                    </label>
+                    <label>Horário Fim
+                        <input type="time" id="s-fim">
+                    </label>
+                </div>
+                <div class="row-2">
+                    <label>Oponente
+                        <input type="text" id="s-oponente" placeholder="Ex: FURIA" required>
+                    </label>
+                    <label>Placar
+                        <input type="text" id="s-placar" placeholder="Ex: 13x9">
+                    </label>
+                </div>
+
+                <div class="checkbox-group">
+                    <span>Jogadores Participantes</span>
+                    <div id="scrim-jogadores-checks" class="checks-list"></div>
+                </div>
+
+                <div class="checkbox-group">
+                    <span>Questões desta Scrim</span>
+                    <div id="scrim-questoes-checks" class="checks-list"></div>
+                </div>
+
+                <button type="submit" class="btn-primary">Salvar Scrim</button>
+            </form>
+
+            <div class="card table-card">
+                <h3>Histórico de Scrims</h3>
+                <table>
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Título</th>
+                        <th>Data</th>
+                        <th>Mapa</th>
+                        <th>Oponente</th>
+                        <th>Placar</th>
+                        <th>Ações</th>
+                    </tr>
+                    </thead>
+                    <tbody id="lista-scrims"></tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===================== AVALIAÇÃO 360° ===================== -->
+    <section id="tab-avaliacao" class="tab-content">
+        <h2>Avaliação 360° Pós-Scrim</h2>
+
+        <div class="card form-card" style="margin-bottom: 24px;">
+            <div class="row-3">
+                <label>1. Selecione a Scrim
+                    <select id="av-scrim"></select>
+                </label>
+                <label>2. Quem está avaliando? (Avaliador)
+                    <select id="av-avaliador"></select>
+                </label>
+                <label>3. Quem está sendo avaliado? (Avaliado)
+                    <select id="av-avaliado"></select>
+                </label>
+            </div>
+
+            <form id="form-avaliacao">
+                <div id="av-questoes-container" class="questoes-av-list"></div>
+                <button type="submit" class="btn-primary" style="margin-top: 16px;">Enviar Avaliação 360°</button>
+            </form>
+        </div>
+
+        <div class="card table-card">
+            <h3>Respostas Registradas na Scrim Selecionada</h3>
+            <table>
+                <thead>
+                <tr>
+                    <th>Avaliador</th>
+                    <th>Avaliado</th>
+                    <th>Critério</th>
+                    <th>Nota</th>
+                    <th>Feedback</th>
+                </tr>
+                </thead>
+                <tbody id="lista-avaliacoes"></tbody>
+            </table>
+        </div>
+    </section>
+</main>
+
+<div id="toast" class="toast"></div>
+<script src="app.js"></script>
+</body>
+</html>
