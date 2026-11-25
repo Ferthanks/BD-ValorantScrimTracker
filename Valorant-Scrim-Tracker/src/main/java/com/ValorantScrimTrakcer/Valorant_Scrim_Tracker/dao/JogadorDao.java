@@ -6,6 +6,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
 
 @Repository
 public class JogadorDao {
@@ -47,5 +48,18 @@ public class JogadorDao {
 
     public void deletar(int id) {
         jdbc.update("DELETE FROM jogador WHERE id_jogador = ?", id);
+    }
+
+    public Map<String, Object> autenticar(String email, String senha) {
+        if (email == null || senha == null) {
+            return null;
+        }
+        String sql = """
+            SELECT id_jogador, nick, riot_tag, funcao, email
+            FROM jogador
+            WHERE LOWER(email) = LOWER(?) AND senha = ?
+            """;
+        var resultado = jdbc.queryForList(sql, email.trim(), senha);
+        return resultado.isEmpty() ? null : resultado.get(0);
     }
 }
