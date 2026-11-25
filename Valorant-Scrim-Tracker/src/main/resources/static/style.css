@@ -375,3 +375,152 @@ tbody tr:hover {
     background: var(--accent);
     color: #fff;
 }
+
+/* Relatórios (Filtro + Gráfico + Tabela) */
+.report-block {
+    margin-bottom: 24px;
+}
+
+.report-subtitle {
+    color: var(--muted);
+    font-size: 0.85rem;
+    margin-top: -10px;
+    margin-bottom: 16px;
+}
+
+.filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: flex-end;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin-bottom: 18px;
+}
+
+.filter-bar label {
+    min-width: 145px;
+    font-size: 0.82rem;
+}
+
+.filter-bar .inline-check {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    padding-bottom: 10px;
+    cursor: pointer;
+    color: var(--text);
+}
+
+.report-body {
+    display: grid;
+    grid-template-columns: 1.05fr 1fr;
+    gap: 20px;
+    align-items: start;
+}
+
+.chart-box {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px;
+    min-height: 290px;
+}
+
+.table-box {
+    max-height: 360px;
+    overflow: auto;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 4px 10px;
+}
+
+.badge-ok {
+    color: var(--success);
+    font-weight: 700;
+}
+
+.badge-warn {
+    color: var(--accent);
+    font-weight: 700;
+}
+
+@media (max-width: 1024px) {
+    .report-body {
+        grid-template-columns: 1fr;
+    }
+}
+.badge-status {
+    white-space: nowrap;
+}
+/* Barra de Login no Header */
+.auth-box {
+    display: flex;
+    align-items: center;
+}
+
+.login-inline {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.login-inline input {
+    padding: 7px 10px;
+    font-size: 0.85rem;
+    width: 175px;
+}
+
+.btn-sm {
+    padding: 7px 14px;
+    font-size: 0.85rem;
+}
+
+.user-logged {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.88rem;
+}
+
+.user-logged strong {
+    color: var(--accent);
+}
+
+/* Ajuste dinâmico dos campos na Avaliação 360° */
+.av-item.tipo-nota {
+    grid-template-columns: 1fr 160px;
+}
+
+.av-item.tipo-texto {
+    grid-template-columns: 1fr 1.2fr;
+}
+
+.av-item.tipo-mista {
+    grid-template-columns: 1fr 140px 1fr;
+}
+
+.av-status-banner {
+    margin-top: 12px;
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    background: rgba(255, 70, 85, 0.14);
+    border: 1px solid var(--accent);
+    color: var(--text);
+}
+
+@media (max-width: 760px) {
+    .av-item.tipo-nota,
+    .av-item.tipo-texto,
+    .av-item.tipo-mista {
+        grid-template-columns: 1fr;
+    }
+}

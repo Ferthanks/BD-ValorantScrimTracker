@@ -13,21 +13,34 @@
         <span class="badge">VCT</span>
         <h1>VALORANT <span>SCRIM TRACKER</span></h1>
     </div>
+
     <nav class="tabs">
-        <button class="tab-btn active" data-tab="dashboard">Dashboard</button>
+        <button class="tab-btn active" data-tab="dashboard">Relatórios</button>
         <button class="tab-btn" data-tab="jogadores">Jogadores</button>
         <button class="tab-btn" data-tab="questoes">Questões</button>
         <button class="tab-btn" data-tab="scrims">Scrims</button>
         <button class="tab-btn" data-tab="avaliacao">Avaliação 360°</button>
     </nav>
+
+    <div class="auth-box" id="auth-box">
+        <form id="form-login" class="login-inline">
+            <input type="email" id="login-email" placeholder="E-mail (ex: aspas@team.com)" required>
+            <input type="password" id="login-senha" placeholder="Senha" required>
+            <button type="submit" class="btn-primary btn-sm">Entrar</button>
+        </form>
+        <div id="user-logged" class="user-logged" style="display: none;">
+            <span id="user-info"></span>
+            <button type="button" class="btn-secondary btn-sm" onclick="fazerLogout()">Sair</button>
+        </div>
+    </div>
 </header>
 
 <main class="container">
-    <!-- ===================== DASHBOARD ===================== -->
+    <!-- ===================== RELATÓRIOS & DASHBOARD ===================== -->
     <section id="tab-dashboard" class="tab-content active">
         <div class="section-header">
-            <h2>Dashboard de Desempenho</h2>
-            <button class="btn-secondary" onclick="carregarDashboard()">Atualizar Gráficos</button>
+            <h2>Relatórios de Desempenho 360°</h2>
+            <button class="btn-secondary" onclick="carregarDashboard()">Atualizar Todos</button>
         </div>
 
         <div class="kpi-grid">
@@ -40,31 +53,198 @@
                 <strong id="kpi-scrims">0</strong>
             </div>
             <div class="kpi-card">
-                <span>Melhor Jogador (Média)</span>
+                <span>MVP 360° (Ponderada)</span>
                 <strong id="kpi-mvp">-</strong>
             </div>
             <div class="kpi-card">
-                <span>Melhor Mapa</span>
-                <strong id="kpi-mapa">-</strong>
+                <span>Avaliações Pendentes</span>
+                <strong id="kpi-pendencias">0</strong>
             </div>
         </div>
 
-        <div class="charts-grid">
-            <div class="card">
-                <h3>Ranking 360° por Jogador</h3>
-                <canvas id="chartJogadores"></canvas>
+        <!-- RELATÓRIO 1 -->
+        <div class="card report-block">
+            <div class="report-header">
+                <div>
+                    <h3>1. Ranking 360° dos Jogadores vs. Média da Equipe</h3>
+                    <p class="report-subtitle">Média ponderada por peso das questões comparada à média geral da equipe (INNER JOIN, Subconsulta, RANK, GROUP BY, HAVING, BETWEEN, LIKE e IN).</p>
+                </div>
             </div>
-            <div class="card">
-                <h3>Média de Desempenho por Mapa</h3>
-                <canvas id="chartMapas"></canvas>
+            <div class="filter-bar">
+                <label>Data Início <input type="date" id="f1-inicio"></label>
+                <label>Data Fim <input type="date" id="f1-fim"></label>
+                <label>Buscar Nick <input type="text" id="f1-nick" placeholder="Ex: aspas"></label>
+                <label>Função
+                    <select id="f1-funcao">
+                        <option value="">Todas as funções</option>
+                        <option value="Duelista">Duelista</option>
+                        <option value="Controlador">Controlador</option>
+                        <option value="Iniciador">Iniciador</option>
+                        <option value="Sentinela">Sentinela</option>
+                        <option value="Flex">Flex</option>
+                    </select>
+                </label>
+                <label>Mín. Avaliações <input type="number" id="f1-min" value="1" min="1"></label>
+                <button class="btn-primary" onclick="carregarRelatorio1()">Filtrar</button>
             </div>
-            <div class="card">
-                <h3>Média por Critério / Questão</h3>
-                <canvas id="chartQuestoes"></canvas>
+            <div class="report-body">
+                <div class="chart-box"><canvas id="chartJogadores"></canvas></div>
+                <div class="table-box">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Nick</th>
+                            <th>Função</th>
+                            <th>Aval.</th>
+                            <th>Média Pond.</th>
+                            <th>Média Equipe</th>
+                            <th>Dif.</th>
+                        </tr>
+                        </thead>
+                        <tbody id="tabela-relatorio-1"></tbody>
+                    </table>
+                </div>
             </div>
-            <div class="card">
-                <h3>Evolução ao Longo das Scrims</h3>
-                <canvas id="chartEvolucao"></canvas>
+        </div>
+
+        <!-- RELATÓRIO 2 -->
+        <div class="card report-block">
+            <div class="report-header">
+                <div>
+                    <h3>2. Evolução da Equipe ao Longo das Scrims</h3>
+                    <p class="report-subtitle">Desempenho cronológico ponderado por scrim e mapa (LEFT JOIN, Agregação, ORDER BY, BETWEEN e IN).</p>
+                </div>
+            </div>
+            <div class="filter-bar">
+                <label>Data Início <input type="date" id="f2-inicio"></label>
+                <label>Data Fim <input type="date" id="f2-fim"></label>
+                <label>Mapa
+                    <select id="f2-mapa">
+                        <option value="">Todos os mapas</option>
+                        <option value="Abyss">Abyss</option>
+                        <option value="Ascent">Ascent</option>
+                        <option value="Bind">Bind</option>
+                        <option value="Breeze">Breeze</option>
+                        <option value="Fracture">Fracture</option>
+                        <option value="Haven">Haven</option>
+                        <option value="Icebox">Icebox</option>
+                        <option value="Lotus">Lotus</option>
+                        <option value="Pearl">Pearl</option>
+                        <option value="Split">Split</option>
+                        <option value="Sunset">Sunset</option>
+                    </select>
+                </label>
+                <button class="btn-primary" onclick="carregarRelatorio2()">Filtrar</button>
+            </div>
+            <div class="report-body">
+                <div class="chart-box"><canvas id="chartEvolucao"></canvas></div>
+                <div class="table-box">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Scrim</th>
+                            <th>Mapa</th>
+                            <th>Oponente</th>
+                            <th>Placar</th>
+                            <th>Notas</th>
+                            <th>Média Pond.</th>
+                        </tr>
+                        </thead>
+                        <tbody id="tabela-relatorio-2"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- RELATÓRIO 3 -->
+        <div class="card report-block">
+            <div class="report-header">
+                <div>
+                    <h3>3. Ranking de Critérios / Questões (Pontos Fortes, Fracos e Nunca Usadas)</h3>
+                    <p class="report-subtitle">Avaliação por critério incluindo questões sem uso/respostas (LEFT JOIN, Subconsulta, FETCH FIRST e IN).</p>
+                </div>
+            </div>
+            <div class="filter-bar">
+                <label>Tipo de Questão
+                    <select id="f3-tipo">
+                        <option value="">Todos</option>
+                        <option value="Nota">Nota</option>
+                        <option value="Texto">Texto</option>
+                        <option value="Mista">Mista</option>
+                    </select>
+                </label>
+                <label>Ordenação
+                    <select id="f3-ordem">
+                        <option value="melhores">Maiores médias</option>
+                        <option value="piores">Menores médias</option>
+                        <option value="nao_usadas">Menos usadas / Nunca usadas</option>
+                    </select>
+                </label>
+                <label>Limite (FETCH FIRST)
+                    <input type="number" id="f3-limite" value="10" min="1" max="50">
+                </label>
+                <button class="btn-primary" onclick="carregarRelatorio3()">Filtrar</button>
+            </div>
+            <div class="report-body">
+                <div class="chart-box"><canvas id="chartQuestoes"></canvas></div>
+                <div class="table-box">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Critério / Questão</th>
+                            <th>Tipo</th>
+                            <th>Peso</th>
+                            <th>Scrims</th>
+                            <th>Resp.</th>
+                            <th>Média</th>
+                        </tr>
+                        </thead>
+                        <tbody id="tabela-relatorio-3"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- RELATÓRIO 4 -->
+        <div class="card report-block">
+            <div class="report-header">
+                <div>
+                    <h3>4. Pendências de Avaliação 360° por Scrim</h3>
+                    <p class="report-subtitle">Identifica quais jogadores escalados ainda não avaliaram colegas (INNER JOIN + LEFT JOIN, GROUP BY e HAVING).</p>
+                </div>
+            </div>
+            <div class="filter-bar">
+                <label>Scrim
+                    <select id="f4-scrim">
+                        <option value="">Todas as scrims</option>
+                    </select>
+                </label>
+                <label class="inline-check">
+                    <input type="checkbox" id="f4-pendentes">
+                    Mostrar apenas com pendências
+                </label>
+                <button class="btn-primary" onclick="carregarRelatorio4()">Filtrar</button>
+            </div>
+            <div class="report-body">
+                <div class="chart-box"><canvas id="chartPendencias"></canvas></div>
+                <div class="table-box">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Scrim</th>
+                            <th>Data</th>
+                            <th>Avaliador</th>
+                            <th>Avaliados</th>
+                            <th>Pendentes</th>
+                            <th>Falta Avaliar</th>
+                        </tr>
+                        </thead>
+                        <tbody id="tabela-relatorio-4"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </section>
@@ -87,7 +267,6 @@
                         <option value="Iniciador">Iniciador</option>
                         <option value="Controlador">Controlador</option>
                         <option value="Sentinela">Sentinela</option>
-                        <option value="Coach">Coach</option>
                         <option value="Flex">Flex</option>
                     </select>
                 </label>
@@ -129,11 +308,11 @@
                     <textarea id="q-enunciado" rows="3" placeholder="Ex: Comunicação durante os rounds?" required></textarea>
                 </label>
                 <label>Tipo
-                    <input type="text" id="q-tipo" list="tipos-questao" value="NOTA" required>
-                    <datalist id="tipos-questao">
-                        <option value="NOTA">
-                        <option value="TEXTO">
-                    </datalist>
+                    <select id="q-tipo" required>
+                        <option value="Nota">Nota</option>
+                        <option value="Texto">Texto</option>
+                        <option value="Mista">Mista</option>
+                    </select>
                 </label>
                 <label>Peso
                     <input type="number" id="q-peso" step="0.1" min="0.1" value="1.0" required>
