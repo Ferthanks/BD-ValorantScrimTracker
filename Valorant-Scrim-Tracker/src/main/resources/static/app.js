@@ -506,14 +506,14 @@ async function carregarScrims() {
 
     document.getElementById('scrim-jogadores-checks').innerHTML = jogadores.map(j => `
         <label class="check-item">
-            <input type="checkbox" name="scrim-jog" value="${j.idJogador}" checked>
+            <input type="checkbox" name="scrim-jog" value="${j.idJogador}">
             ${j.nick} (${j.funcao})
         </label>
     `).join('') || '<small>Cadastre jogadores primeiro.</small>';
 
     document.getElementById('scrim-questoes-checks').innerHTML = questoes.map(q => `
         <label class="check-item">
-            <input type="checkbox" name="scrim-quest" value="${q.idQuestao}" checked>
+            <input type="checkbox" name="scrim-quest" value="${q.idQuestao}">
             ${q.enunciado}
         </label>
     `).join('') || '<small>Cadastre questões primeiro.</small>';
@@ -735,13 +735,18 @@ document.getElementById('form-avaliacao').addEventListener('submit', async (e) =
     const idScrim = Number(document.getElementById('av-scrim').value);
     const idAvaliador = Number(document.getElementById('av-avaliador').value);
     const idAvaliado = Number(document.getElementById('av-avaliado').value);
+    const itens = [...document.querySelectorAll('.av-item')];
+
+    if (!idAvaliado || itens.length === 0) {
+        mostrarToast('Selecione um colega e uma scrim com questões vinculadas.', true);
+        return;
+    }
 
     if (idAvaliador === idAvaliado) {
         mostrarToast('Não é permitido avaliar a si mesmo.', true);
         return;
     }
 
-    const itens = [...document.querySelectorAll('.av-item')];
     const payload = itens.map(item => {
         const inputNota = item.querySelector('.av-nota');
         const inputTexto = item.querySelector('.av-texto');
@@ -764,6 +769,7 @@ document.getElementById('form-avaliacao').addEventListener('submit', async (e) =
             body: JSON.stringify(payload)
         });
         e.target.reset();
+        document.getElementById('av-scrim').value = idScrim;
         mostrarToast('Avaliação 360° salva!');
         carregarDetalhesScrimParaAvaliacao(idScrim);
     } catch {

@@ -82,14 +82,17 @@ SELECT
     q.id_questao,
     q.enunciado,
     q.tipo,
-    COUNT(DISTINCT sq.id_scrim) AS total_scrims,
-    COUNT(DISTINCT ra.id_resposta) AS total_respostas,
-    ROUND(AVG(ra.nota_valor)::numeric, 2) AS media_nota
+    q.peso,
+    (SELECT COUNT(*) FROM scrim_questao sq WHERE sq.id_questao = q.id_questao) AS scrims_vinculadas,
+    COUNT(ra.id_resposta) AS total_respostas,
+    ROUND(AVG(ra.nota_valor), 2) AS media_nota
 FROM questao q
-LEFT JOIN scrim_questao sq ON q.id_questao = sq.id_questao
-LEFT JOIN resposta_avaliacao ra ON q.id_questao = ra.id_questao
-GROUP BY q.id_questao, q.enunciado, q.tipo
-ORDER BY q.id_questao;
+LEFT JOIN resposta_avaliacao ra
+    ON q.id_questao = ra.id_questao
+WHERE q.tipo IN ('Nota', 'Texto', 'Mista')
+GROUP BY q.id_questao, q.enunciado, q.tipo, q.peso
+ORDER BY media_nota DESC NULLS LAST, total_respostas DESC
+FETCH FIRST 10 ROWS ONLY;
 
 
 -- ----------------------------------------------------------------------------
@@ -98,7 +101,7 @@ ORDER BY q.id_questao;
 --           quantos e quais colegas eles ainda não avaliaram.
 -- Recursos SQL: INNER JOIN, LEFT JOIN (junção externa para detectar ausência
 --               de resposta), agregação (COUNT, STRING_AGG), GROUP BY, HAVING
---               e ORDER BY.
+--               (opcional via filtro da tela) e ORDER BY.
 -- ----------------------------------------------------------------------------
 SELECT
     s.id_scrim,
@@ -122,5 +125,7 @@ LEFT JOIN resposta_avaliacao ra
     ON ra.id_scrim = s.id_scrim
    AND ra.id_avaliador = d1.id_jogador
    AND ra.id_avaliado = d2.id_jogador
+-- WHERE s.id_scrim = 1 -- filtro opcional por scrim na tela
 GROUP BY s.id_scrim, s.titulo, s.data, s.mapa, av.id_jogador, av.nick
+-- HAVING (COUNT(DISTINCT d2.id_jogador) - COUNT(DISTINCT ra.id_avaliado)) > 0 -- filtro opcional "Apenas pendentes"
 ORDER BY pendentes DESC, s.data DESC, av.nick ASC;

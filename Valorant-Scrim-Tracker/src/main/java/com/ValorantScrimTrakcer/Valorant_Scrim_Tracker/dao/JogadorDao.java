@@ -42,9 +42,14 @@ public class JogadorDao {
     }
 
     public void atualizar(int id, Jogador j) {
+    if (j.getSenha() != null && !j.getSenha().isBlank()) {
         String sql = "UPDATE jogador SET nick = ?, riot_tag = ?, funcao = ?, email = ?, senha = ? WHERE id_jogador = ?";
         jdbc.update(sql, j.getNick(), j.getRiotTag(), j.getFuncao(), j.getEmail(), j.getSenha(), id);
+    } else {
+        String sql = "UPDATE jogador SET nick = ?, riot_tag = ?, funcao = ?, email = ? WHERE id_jogador = ?";
+        jdbc.update(sql, j.getNick(), j.getRiotTag(), j.getFuncao(), j.getEmail(), id);
     }
+}
 
     public void deletar(int id) {
         jdbc.update("DELETE FROM jogador WHERE id_jogador = ?", id);
